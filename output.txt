@@ -1,0 +1,11 @@
+Abstract
+This thesis investigates the performance of Gaussian processes (GP) in the
+context of Covariance Matrix Adaptation Evolution Strategy (CMA-ES), the
+state-of-the-art evolutionary optimization method for black-box continuous op-
+timization, using niching functions from the CEC 2013 competition, which are
+characterized by a high number of local optima. It describes the integration
+of CMA-ES and GP surrogate model and compares its performance to Model
+Guided Sampling Optimization.
+Keywords black-box optimization, Gaussian process, CMA-ES, surrogate
+model
+x
