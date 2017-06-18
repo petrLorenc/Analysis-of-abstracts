@@ -71,37 +71,39 @@ def main2():
         theses = [] 
         while len(frontier) != 0 :
             page = frontier.pop()
-            try:
-                print('Crawled:' + page)
-                source = requests.get('https://dip.felk.cvut.cz/browse/' + page, verify=False).text
-                soup = BeautifulSoup(source, "lxml")
+            #try:
+            print('Crawled:' + page)
+            source = requests.get('https://dip.felk.cvut.cz/browse/' + page, verify=False)
+            soup = BeautifulSoup(source.text.encode('iso-8859-1'), "lxml")
 
-                if len(theses) % 30 == 1:
-                    print("SAVING ", len(theses))
-                    with open("data/data.plk", mode="wb") as file:
-                        pickle.dump(theses, file)
+            if len(theses) % 30 == 1:
+                print("SAVING ", len(theses))
+                with open("data/data.plk", mode="wb") as file:
+                    pickle.dump(theses, file)
 
-                print ("text:" + str(soup.select("body > p > table > tbody > tr:nth-of-type(10) > td:nth-of-type(2)").text))
-                # on thesis page - no need to crawl links on this page
-                if len(str(soup.select("body > p > table > tbody > tr:nth-of-type(10) > td:nth-of-type(2)"))) > 10: 
-                    thesis = {}
-                    for i in range(1, 11):
-                        title = str(soup.select("body > p > table > tbody > tr:nth-of-type(" + i + ") > td:nth-of-type(1)").text)
-                        data = str(soup.select("body > p > table > tbody > tr:nth-of-type(" + i + ") > td:nth-of-type(2)").text)
-                        thesis[title] = data
-                        theses.append(thesis)
-                # on non thesis page
-                else:
-                    links = soup.findAll('a', href=True)
+            #print (soup.select("body > p > table > tbody > tr:nth-of-type(10) > td:nth-of-type(2)"))
+            # on thesis page - no need to crawl links on this page
+            if "details" in page: 
+                thesis = {}
+                for elem in soup.find_all('tr')[1:10]:
+                    # print (elem)
+                    title = elem.find_all('td')[0].get_text()
+                    data = elem.find_all('td')[1].get_text()
+                    #print ("title" + title + " data:" +data)
+                    thesis[title] = data
+                theses.append(thesis)
+            # on non thesis page
+            else:
+                links = soup.findAll('a', href=True)
 
-                    if page not in crawled:
-                        for link in links:
-                            if ".." not in link["href"] and ".pdf" not in link['href'] and link['href'] not in crawled:
-                                frontier.append(link['href'])
-                        crawled.append(page)
+                if page not in crawled:
+                    for link in links:
+                        if ".." not in link["href"] and ".pdf" not in link['href'] and link['href'] not in crawled:
+                            frontier.append(link['href'])
+                    crawled.append(page)
 
-            except Exception as e:
-                print(e)
+            # except Exception as e:
+            #     print(e)
         return
 
     crawler('', 50)
